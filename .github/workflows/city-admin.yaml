@@ -16,7 +16,7 @@ env:
 
 jobs:
   build:
-    runs-on: city-addmin
+    runs-on: altaf
 
     steps:
       - name: Checkout Repository
