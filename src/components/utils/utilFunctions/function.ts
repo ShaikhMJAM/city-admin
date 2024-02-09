@@ -1,0 +1,381 @@
+import { format, parse } from "date-fns";
+import { toNumber } from "lodash";
+
+export const GetMaxCdForDetails = (data, keys) => {
+  if (Array.isArray(data)) {
+    if (!Boolean(keys)) {
+      return data.length + 1;
+    }
+    let maxCd = 0;
+    data.forEach((item, index) => {
+      if (Boolean(item[keys])) {
+        if (parseFloat(item[keys]) > maxCd) {
+          maxCd = parseFloat(item[keys]);
+        }
+      } else if (maxCd < index + 1) {
+        maxCd = index + 1;
+      }
+    });
+    return maxCd + 1;
+  } else {
+    return 1;
+  }
+};
+export const GetMaxDisplaySequenceCd = (data, keys) => {
+  if (Array.isArray(data)) {
+    if (!Boolean(keys)) {
+      return data.length + 1;
+    }
+    let maxCd = 0;
+    data.forEach((item, index) => {
+      if (typeof item[keys] !== "undefined") {
+        let { _hidden } = item;
+        if (
+          typeof _hidden === "undefined" ||
+          (typeof _hidden === "boolean" && !Boolean(_hidden))
+        ) {
+          if (parseFloat(item[keys]) > maxCd) {
+            maxCd = parseFloat(item[keys]);
+          }
+        }
+      } else if (maxCd < index + 1) {
+        maxCd = index + 1;
+      }
+    });
+    return maxCd + 1;
+  } else {
+    return 1;
+  }
+};
+export const base64toBlob = (b64Data, contentType = "", sliceSize = 512) => {
+  const byteCharacters =
+    !(b64Data == null) && !(b64Data == "") ? atob(b64Data) : "";
+  const byteArrays: any = [];
+
+  for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+    const slice = byteCharacters.slice(offset, offset + sliceSize);
+
+    const byteNumbers = new Array(slice.length);
+    for (let i = 0; i < slice.length; i++) {
+      byteNumbers[i] = slice.charCodeAt(i);
+    }
+
+    const byteArray = new Uint8Array(byteNumbers);
+    byteArrays.push(byteArray);
+  }
+
+  const blob = new Blob(byteArrays, { type: contentType });
+  return blob;
+};
+export const blobToFile = (theBlob: Blob, fileName: string): File => {
+  var b: any = theBlob;
+  //A Blob() is almost a File() - it's just missing the two properties below which we will add
+  b.lastModifiedDate = new Date();
+  b.name = fileName;
+
+  //Cast to a File() type
+  return <File>theBlob;
+};
+export const ChangeJsonValue = (data, obj) => {
+  if (Array.isArray(data)) {
+    return data.map((item) => {
+      let newitem = item;
+      let allKeys = Object.keys(item);
+      allKeys.forEach((itemdata) => {
+        if (Boolean(obj[itemdata])) {
+          let keyValue = item[itemdata];
+          if (typeof obj[itemdata] === "object") {
+            newitem["_NEW_" + itemdata] = Boolean(obj[itemdata][keyValue])
+              ? obj[itemdata][keyValue]
+              : keyValue;
+          } else if (typeof obj[itemdata] === "function") {
+            let funcRet = obj[itemdata](keyValue, itemdata);
+            newitem["_NEW_" + itemdata] = Boolean(funcRet) ? funcRet : keyValue;
+          } else {
+            newitem["_NEW_" + itemdata] = keyValue;
+          }
+        }
+      });
+      return newitem;
+    });
+  } else {
+    return data;
+  }
+};
+
+export const convertBlobToBase64 = async (blob) => {
+  // blob data
+  return await blobToBase64(blob).then((result: any) =>
+    result.toString().split(",")
+  );
+};
+
+const blobToBase64 = (blob) =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(blob);
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = (error) => reject(error);
+  });
+
+export const getAuthorizeTokenText = (token, token_type) => {
+  if (token_type === "bearer") {
+    return "Bearer " + token;
+  } else if (token_type === "basic") {
+    return "Basic " + token;
+  } else {
+    return "Bearer " + token;
+  }
+};
+
+export const getCurrentDateinLong = () => {
+  return new Date().getTime();
+};
+
+export const ValidatePassword = (pwd) => {
+  if (!Boolean(pwd)) {
+    return "Password is Required";
+  } else if (pwd.length < 8 || pwd.length > 16) {
+    return "Password must be between 8 and 16 characters long.";
+  }
+  return "";
+};
+
+export const GetAllChieldMenuData = (
+  data: any,
+  isCheckUserCode: boolean = true
+) => {
+  let newNavItems: any = [];
+  if (Array.isArray(data)) {
+    for (let i = 0; i < data.length; i++) {
+      let { children, ...newItem } = data[i];
+      if (Array.isArray(children) && children.length > 0) {
+        let newChildren = GetAllChieldMenuData(children);
+        newNavItems.push(...newChildren);
+      } else {
+        if (
+          (!isCheckUserCode || Boolean(newItem.system_code)) &&
+          Boolean(newItem.href)
+        ) {
+          newNavItems.push({ ...newItem });
+        }
+        // else if (Boolean(newItem.href)) {
+        //   newNavItems.push({ ...newItem });
+        // }
+      }
+    }
+  }
+  return newNavItems;
+};
+export const transformBlobData = (data) => {
+  if (!Array.isArray(data)) {
+    return data;
+  }
+  return data.map((item) => {
+    let newItem = {};
+    newItem["id"] = toNumber(item["ID"]);
+    newItem["blob"] = base64toBlob(
+      item["BLOB"],
+      item["FILEEXT"] === "pdf" ? "application/pdf" : ""
+    );
+    newItem["fileExt"] = item["FILEEXT"];
+    newItem["name"] =
+      item["NAME"]?.includes(".") ?? true
+        ? item["NAME"]
+        : item["NAME"] + "." + newItem["fileExt"];
+    newItem["_mimeType"] =
+      newItem["fileExt"] === "pdf"
+        ? "pdf"
+        : newItem["fileExt"] === "jpg"
+        ? "image"
+        : newItem["fileExt"] === "png"
+        ? "image"
+        : newItem["fileExt"] === "jpeg"
+        ? "image"
+        : "other";
+    newItem["sizeStr"] = newItem["blob"]?.size ?? 1000;
+    return newItem;
+  });
+};
+
+export const transformDetailsData = (newData, oldData) => {
+  let allKey = Object.keys(newData);
+  let _UPDATEDCOLUMNS: any = [];
+  let _OLDROWVALUE = {};
+  allKey.forEach((item) => {
+    if (newData[item] === oldData[item]) {
+    } else if (
+      (typeof newData[item] === "object" ||
+        typeof oldData[item] === "object" ||
+        typeof newData[item] === "string") &&
+      isValidDate(newData[item]) &&
+      isValidDate(oldData[item]) &&
+      format(new Date(newData[item]), "dd/MM/yyyy HH:mm:ss") ===
+        format(new Date(oldData[item]), "dd/MM/yyyy HH:mm:ss")
+    ) {
+    } else {
+      _UPDATEDCOLUMNS.push(item);
+      _OLDROWVALUE[item] = oldData[item];
+    }
+  });
+  return { _UPDATEDCOLUMNS: _UPDATEDCOLUMNS, _OLDROWVALUE: _OLDROWVALUE };
+};
+
+export const isValidDate = (dat) => {
+  try {
+    if (!dat) {
+      return false;
+    } else {
+      let dt: any = new Date(dat);
+
+      if (!isNaN(dt) && dt < new Date("1900/01/01")) {
+        return false;
+      } else if (!isNaN(dt)) {
+        return true;
+      }
+      return false;
+    }
+  } catch (error) {
+    return false;
+  }
+};
+
+export const generateUUID = () => {
+  // Public Domain/MIT
+  var d = new Date().getTime(); //Timestamp
+  var d2 =
+    (typeof performance !== "undefined" &&
+      performance.now &&
+      performance.now() * 1000) ||
+    0; //Time in microseconds since page-load or 0 if unsupported
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
+    var r = Math.random() * 16; //random number between 0 and 16
+    if (d > 0) {
+      //Use timestamp until depleted
+      r = (d + r) % 16 | 0;
+      d = Math.floor(d / 16);
+    } else {
+      //Use microseconds since page-load if supported
+      r = (d2 + r) % 16 | 0;
+      d2 = Math.floor(d2 / 16);
+    }
+    return (c === "x" ? r : (r & 0x3) | 0x8).toString(16);
+  });
+};
+
+export const getMetadataLabelFromColumnName = (metadata, colomnList) => {
+  if (
+    !Boolean(metadata) ||
+    !Boolean(colomnList) ||
+    !Array.isArray(colomnList)
+  ) {
+    return {};
+  }
+  let outData = {};
+  for (const item of metadata?.fields ?? []) {
+    if (colomnList.includes(item.name)) {
+      outData[item.name] = item.label;
+    }
+  }
+  return outData;
+};
+
+const getKey = (item, keys) => {
+  return keys.map((key) => item[key]).join("_");
+};
+
+const areObjectsEqual = (obj1, obj2, keys) => {
+  return keys.every((key) => obj1[key] === obj2[key]);
+};
+
+const getChangedColumns = (obj1, obj2, keys) => {
+  return keys.filter((key) => obj1[key] !== obj2[key]);
+};
+
+export const transformDetailDataForDML = (input1, input2, keysToCompare) => {
+  const output: {
+    isNewRow: any[];
+    isUpdatedRow: any[];
+    isDeleteRow: any[];
+  } = {
+    isNewRow: [],
+    isUpdatedRow: [],
+    isDeleteRow: [],
+  };
+
+  const idMapInput1: any = new Map(
+    input1.map((item) => [getKey(item, keysToCompare), item])
+  );
+  const idMapInput2: any = new Map(
+    input2.map((item) => [getKey(item, keysToCompare), item])
+  );
+
+  // Process INSERT and UPDATE operations
+  for (const [id, item2] of idMapInput2) {
+    const item1 = idMapInput1.get(id);
+    if (!item1) {
+      output.isNewRow.push(item2);
+    } else if (areObjectsEqual(item1, item2, keysToCompare)) {
+      const changedColumns = getChangedColumns(
+        item1,
+        item2,
+        Object.keys(item2)
+      );
+      if (changedColumns.length > 0) {
+        const oldValues = {};
+        for (const key of changedColumns) {
+          if (key in item1) {
+            oldValues[key] = item1[key];
+          }
+        }
+        const updateObj = {
+          ...item2,
+          _OLDROWVALUE: oldValues,
+          _UPDATEDCOLUMNS: changedColumns,
+        };
+        output.isUpdatedRow.push(updateObj);
+      }
+    }
+  }
+
+  // Process DELETE operation
+  for (const [id, item1] of idMapInput1) {
+    if (!idMapInput2.has(id)) {
+      output.isDeleteRow.push(item1);
+    }
+  }
+  return output;
+};
+
+/**
+ * limitation
+ * cannot handle date format "MM/dd/yy", e.g 1/23/24 it returns year as 0024
+ */
+export const getParsedDate = (
+  dateString: string | Date,
+  isStringRequired = false,
+  requiredFormat: string[] = []
+): string | Date | any => {
+  if (typeof dateString === "object") return dateString;
+  const formats = requiredFormat.length
+    ? requiredFormat
+    : [
+        "yyyy-MM-dd HH:mm:ss",
+        "yyyy-MM-dd HH:mm:ss.S",
+        "yyyy-MM-dd",
+        "dd/MM/yyyy",
+        "dd/MM/yyyy HH:mm:ss",
+        "MM/dd/yyyy",
+        "MM/dd/yyyy HH:mm:ss",
+        "dd/MMM/yyyy",
+        "dd-MM-yyyy",
+      ];
+
+  for (const format of formats) {
+    const parsedDate = parse(dateString, format, new Date());
+    if (!isNaN(parsedDate.getTime())) {
+      return parsedDate;
+    }
+  }
+  return isStringRequired ? dateString : new Date(dateString);
+};

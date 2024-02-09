@@ -1,0 +1,24 @@
+.MuiPickersDay-current.MuiPickersDay-day {
+  color: var(--theme-color1);
+}
+.MuiPickersDay-daySelected.MuiPickersDay-day {
+  background-color: var(--theme-color1);
+  color: var(--white);
+}
+.MuiPickersDay-daySelected.MuiPickersDay-day:hover {
+  background-color: var(--theme-color1);
+  color: var(--white);
+}
+.MuiPickersYear-root.MuiPickersYear-yearSelected {
+  color: var(--theme-color1);
+}
+.MuiPickersLayout-contentWrapper .MuiButtonBase-root.Mui-selected {
+  color: #fff;
+  background-color: var(--theme-color1) !important;
+}
+.MuiPickersLayout-contentWrapper .MuiButtonBase-root:hover {
+  background-color: rgba(128, 0, 0, 0.04);
+}
+.MuiPickersSlideTransition-root {
+  min-height: 220px;
+}

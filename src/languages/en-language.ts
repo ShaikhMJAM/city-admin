@@ -1,0 +1,22 @@
+export const en_language_data = {
+  Loading: "Loading",
+  Login: "Login",
+  LoginWithUsernameandPassword: "Login with your Username and Password",
+  Username: "User ID",
+  Password: "Password",
+  EnterUsername: "Enter Username",
+  EnterPassword: "Enter Password",
+  ForgotPassword: "Forgot Password",
+  UsernameisRequired: "Username is a required",
+  PasswordisRequired: "Password is a required",
+  UsernamenandPasswordisRequired: "Username and Password is a required",
+  profile: {
+    UserProfile: "User Profile",
+    EnableTOTPAuth: "Enable T-OTP Auth",
+    DisableTOTPAuth: "Disabled T-OTP Auth",
+    ChangePassword: "Change Password",
+    LoginDate: "Login Date",
+    UserID: "User ID",
+    Name: "Name",
+  },
+};
