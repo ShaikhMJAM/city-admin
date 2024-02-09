@@ -16,7 +16,7 @@ env:
 
 jobs:
   build:
-    runs-on: city-admin-1
+    runs-on: city-addmin
 
     steps:
       - name: Checkout Repository
