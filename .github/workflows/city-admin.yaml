@@ -11,10 +11,12 @@ env:
   GIT_USERNAME: ${{ secrets.GIT_USERNAME }}
   GIT_PASSWORD: ${{ secrets.GIT_PASSWORD }}
 
+# permissions:
+#   contents: read
+
 jobs:
   build:
-    runs-on: ${{ matrix.os-version == 'windows-7' ? 'windows-latest' : 'ubuntu-latest' }}
-
+    runs-on: 
     strategy:
       matrix:
         os-version: [ubuntu-16.04, ubuntu-18.04, ubuntu-20.04, ubuntu-22.04, windows-7]
@@ -27,13 +29,12 @@ jobs:
       - name: Set up Node.js and Build
         uses: actions/setup-node@v4
         with:
-          node-version: "14" # Adjust the version as needed for compatibility
+          node-version: "20"
+      - run: npm install yarn -g
+      - run: yarn install
 
-      - if: matrix.os-version != 'windows-7'
-        run: |
-          npm install yarn -g
-          yarn install
-          yarn run build
+      - run: yarn run build
 
       - name: Displaying Build is Success
         run: echo "Build is successful!"
+
