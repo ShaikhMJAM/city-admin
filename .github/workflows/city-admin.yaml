@@ -16,10 +16,10 @@ env:
 
 jobs:
   build:
-    runs-on: 
     strategy:
       matrix:
         os-version: [ubuntu-16.04, ubuntu-18.04, ubuntu-20.04, ubuntu-22.04, windows-7]
+    runs-on: ${{ matrix.os-version }}
 
 
     steps:
@@ -29,7 +29,7 @@ jobs:
       - name: Set up Node.js and Build
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: ${{ matrix.os-version }}
       - run: npm install yarn -g
       - run: yarn install
 
