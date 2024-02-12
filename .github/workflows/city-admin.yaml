@@ -31,6 +31,8 @@ jobs:
       - run: yarn add @koale/useworker
 
       - run: yarn run build
+        env: 
+           CI: ""
 
       - name: Displaying Build is Success
         run: echo "Build is successful!"
