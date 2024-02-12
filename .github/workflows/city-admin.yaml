@@ -28,7 +28,7 @@ jobs:
           node-version: "20"
       # - run: npm install yarn -g
       - run: npm install --force
-      - run: yarn add @koale/useworker
+      # - run: yarn add @koale/useworker
 
       - run: npm run build
         env: 
