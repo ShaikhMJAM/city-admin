@@ -1,9 +1,12 @@
 import { AuthSDK, CryptoSDK } from "./fns/auth";
+import process  from 'process';
+
 
 /*AuthSDK.inititateAPI(
   `${new URL("./", process.env.REACT_APP_API_URL).href}` ?? "",
   process?.env?.REACT_APP_API_PROJECT_NAME ?? ""
 );*/
+console.log('process?.env?.REACT_APP_PUBLIC_KEY----->', process?.env?.REACT_APP_PUBLIC_KEY)
 CryptoSDK.inititateKey(process?.env?.REACT_APP_PUBLIC_KEY);
 String.prototype["getBytes"] = function () {
   var bytes: any = [];
