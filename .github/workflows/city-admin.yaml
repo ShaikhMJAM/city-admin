@@ -16,7 +16,7 @@ env:
 
 jobs:
   build:
-    runs-on: altaf
+    runs-on: admin-panel-window
 
     steps:
       - name: Checkout Repository
