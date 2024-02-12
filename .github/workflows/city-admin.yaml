@@ -26,13 +26,13 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20"
-      - run: npm install yarn -g
-      - run: yarn install
+      # - run: npm install yarn -g
+      - run: npm ci --legacy-peer-deps
       - run: yarn add @koale/useworker
 
-      - run: yarn run build
+      - run: npm run build
         env: 
-           CI: ""
+           CI: false
 
       - name: Displaying Build is Success
         run: echo "Build is successful!"
