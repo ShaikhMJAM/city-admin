@@ -1,0 +1,72 @@
+name: city-admin on my window
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+  DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
+  GIT_USERNAME: ${{ secrets.GIT_USERNAME }}
+  GIT_PASSWORD: ${{ secrets.GIT_PASSWORD }}
+
+# permissions:
+#   contents: read
+
+jobs:
+  build:
+    runs-on: altaf
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js and Build
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      # - run: npm install yarn -g
+      - run: npm install --force
+      # - run: yarn add @koale/useworker
+
+      - run: npm run build
+        env: 
+           CI: false
+
+      - name: Displaying Build is Success
+        run: echo "Build is successful!"
+
+  docker:
+    needs: build
+    runs-on: self-hosted
+    steps:
+      # - name: Clean Docker Buildx Cache
+      #   run: docker buildx prune --all --force
+      
+      # - name: Checkout
+      #   uses: actions/checkout@v4
+      
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_TOKEN }}
+      
+      - name: Build Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile # Adjust the path to your Dockerfile
+          push: true
+          tags: actdocker123/cicdpipeline:admin-panel-V1.0${{ github.run_number }}
+      
+      - name: Display Docker Push Message
+        run: echo "Pushing Docker Image to DockerHub is Successfull!"
+
