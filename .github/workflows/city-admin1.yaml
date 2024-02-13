@@ -16,7 +16,7 @@ env:
 
 jobs:
   build:
-    runs-on: admin-panel-mac
+    runs-on: altaf
 
     steps:
       - name: Checkout Repository
